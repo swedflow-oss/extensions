@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  pull_request:
+  merge_group:
+  push:
+    branches:
+      - "main"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: write
+
+env:
+  ETERM_EXTENSION_CLI_SHA: 9ee3c503a4bbbc6b4a0f8a789acca4871d773223
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'swedflow-oss'
+    timeout-minutes: 30
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          clean: false
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: "package.json"
+          cache: "pnpm"
+          check-latest: true
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: "1.90"
+          target: "wasm32-wasip2"
+
+      - name: Cache eterm-extension CLI
+        id: cache-eterm-extension
+        uses: actions/cache@v4
+        with:
+          path: |
+            eterm-extension
+          key: eterm-extension-${{ env.ETERM_EXTENSION_CLI_SHA }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build
+        run: pnpm build
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Restore existing static registry
+        run: |
+          rm -rf public
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            git clone --depth 1 --branch gh-pages "https://github.com/${GITHUB_REPOSITORY}.git" public
+            rm -rf public/.git
+          else
+            mkdir -p public
+          fi
+
+      - name: Cache extension build dependencies
+        uses: actions/cache@v4
+        with:
+          key: cache-build-dependencies
+          path: |
+            ./build/scratch
+
+      - name: Package extensions
+        run: pnpm package-extensions
+        env:
+          REF_NAME: ${{ github.ref_name }}
+          RUSTUP_TOOLCHAIN: "1.90"
+          PUBLISH_DIR: public
+
+      - name: Enforce sorted `extensions.toml` and `.gitmodules`
+        run: |
+          if ! git diff --exit-code -- extensions.toml .gitmodules; then
+            echo -e "\nERROR: extensions.toml and .gitmodules are not sorted."
+            echo -e "Fix by running:\n  pnpm sort-extensions\n"
+            exit 1
+          fi
+
+      - name: Enforce no Git LFS
+        run: |
+          # shellcheck disable=SC2016
+          git submodule foreach --quiet \
+            '[ ! -f .gitattributes ] || ! grep -q "filter=lfs" .gitattributes && [ ! -d .git/lfs ] || {
+              echo "LFS detected in $path" >&2 && exit 1
+            }'
+
+      - name: Deploy static registry
+        if: github.event_name == 'push' && github.ref_name == 'main'
+        run: |
+          cd public
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b gh-pages
+          git add -A
+          git commit --allow-empty -m "Deploy static extension registry"
+          git push --force "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
