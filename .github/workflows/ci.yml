@@ -15,7 +15,7 @@ permissions:
   contents: write
 
 env:
-  ETERM_EXTENSION_CLI_SHA: 9ee3c503a4bbbc6b4a0f8a789acca4871d773223
+  ETERM_EXTENSION_CLI_SHA: 57e52a0085da374a17128898de22799bdc604d80
 
 jobs:
   package:
