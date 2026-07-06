@@ -1,0 +1,55 @@
+{
+  "data": [
+    {
+      "id": "1984-theme",
+      "name": "1984 Theme",
+      "version": "0.1.3",
+      "description": "1984 theme for Zed",
+      "authors": [
+        "chenmijiang <jack_chenyuana@163.com>"
+      ],
+      "repository": "https://github.com/chenmijiang/zed-1984",
+      "schema_version": 1,
+      "wasm_api_version": null,
+      "provides": [
+        "themes"
+      ],
+      "published_at": "2026-07-06T09:17:26.878Z",
+      "download_count": 0
+    },
+    {
+      "id": "a-distant-hope-theme",
+      "name": "A Distant Hope",
+      "version": "0.1.0",
+      "description": "Somewhere between the stars and eternity: a dark theme inspired by the colors of An Old Hope",
+      "authors": [
+        "Chris Lockard <github@chrislockard.net>"
+      ],
+      "repository": "https://github.com/chrislockard/a-distant-hope-theme",
+      "schema_version": 1,
+      "wasm_api_version": null,
+      "provides": [
+        "themes"
+      ],
+      "published_at": "2026-07-06T09:17:29.310Z",
+      "download_count": 0
+    },
+    {
+      "id": "abysswalker-theme",
+      "name": "Abysswalker",
+      "version": "0.1.0",
+      "description": "A minimalist dark theme. Designed for deep focus.",
+      "authors": [
+        "Andrii Stavskyi <an.stawski@outlook.com>"
+      ],
+      "repository": "https://github.com/stkossman/abysswalker-zed",
+      "schema_version": 1,
+      "wasm_api_version": null,
+      "provides": [
+        "themes"
+      ],
+      "published_at": "2026-07-06T09:17:30.344Z",
+      "download_count": 0
+    }
+  ]
+}

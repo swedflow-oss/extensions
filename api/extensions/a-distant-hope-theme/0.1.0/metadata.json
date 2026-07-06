@@ -1,0 +1,17 @@
+{
+  "id": "a-distant-hope-theme",
+  "name": "A Distant Hope",
+  "version": "0.1.0",
+  "description": "Somewhere between the stars and eternity: a dark theme inspired by the colors of An Old Hope",
+  "authors": [
+    "Chris Lockard <github@chrislockard.net>"
+  ],
+  "repository": "https://github.com/chrislockard/a-distant-hope-theme",
+  "schema_version": 1,
+  "wasm_api_version": null,
+  "provides": [
+    "themes"
+  ],
+  "published_at": "2026-07-06T09:17:29.310Z",
+  "download_count": 0
+}
