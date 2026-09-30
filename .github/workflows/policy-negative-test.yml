@@ -1,0 +1,9 @@
+name: Disposable runner policy test
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  forbidden_runner:
+    runs-on: macos-latest
+    steps:
+      - run: echo "Never dispatch this verification fixture"
