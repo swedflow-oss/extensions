@@ -109,5 +109,25 @@ class RunnerPolicyTests(unittest.TestCase):
         git('commit', '-m', 'change')
         self.assertEqual(policy['changed_workflows'](self.root, base), ['.github/workflows/check.yml'])
 
+    def test_workflow_type_change_is_selected_and_rejected(self):
+        def git(*args):
+            return subprocess.check_output(['git', '-C', str(self.root), *args], stderr=subprocess.DEVNULL).decode().strip()
+        git('init')
+        git('config', 'user.name', 'Policy Test')
+        git('config', 'user.email', 'policy@example.invalid')
+        self.workflow('ubuntu-latest')
+        git('add', '.')
+        git('commit', '-m', 'base')
+        base = git('rev-parse', 'HEAD')
+        workflow = self.root / '.github/workflows/check.yml'
+        workflow.unlink()
+        (self.root / 'other.yml').write_text('jobs:\n  check:\n    runs-on: macos-latest\n')
+        workflow.symlink_to('../../other.yml')
+        git('add', '.')
+        git('commit', '-m', 'replace workflow with symlink')
+        self.assertEqual(policy['changed_workflows'](self.root, base), ['.github/workflows/check.yml'])
+        with self.assertRaises(policy['PolicyError']):
+            policy['check_workflow'](self.root, '.github/workflows/check.yml')
+
 if __name__ == '__main__':
     unittest.main()
