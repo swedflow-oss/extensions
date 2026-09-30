@@ -10,8 +10,10 @@ permissions:
 jobs:
   runner-policy:
     name: Included runner policy
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Audit workflow data only. Local fallback must not execute candidate code.
+    # Missing/unknown routing state selects the guarded light lane.
+    runs-on: ${{ vars.LINUX_RUNNER == 'hosted' && 'ubuntu-latest' || fromJSON('["self-hosted","dev-mini","light"]') }}
+    timeout-minutes: ${{ vars.LINUX_RUNNER == 'hosted' && 5 || 60 }}
     steps:
       - name: Check out repository data
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
